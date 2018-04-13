@@ -156,7 +156,6 @@ public class Main{
         activedButton.add(activedLabel);
         tools.add(activedButton);
         window.setSize(1800,800);
-
     }
 
     static void CreateColorsLayout(JLabel colorsLayout){
