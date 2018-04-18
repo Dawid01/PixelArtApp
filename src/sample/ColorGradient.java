@@ -3,11 +3,12 @@ package sample;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-public class ColorGradient extends JPanel {
+public class ColorGradient extends JPanel implements MouseListener {
 
     ColorPicker selectColor;
 
@@ -94,5 +95,33 @@ public class ColorGradient extends JPanel {
         Graphics2D g = bi.createGraphics();
         panel.paint(g);
         return(bi);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+//        if(e.getButton () == MouseEvent.BUTTON1) {
+//            point.add(new PixelPoint(new Point(e.getX(), e.getY()), singleton.getInstance().getPaintColor()));
+//            revalidate();
+//            repaint();
+//        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e){
     }
 }

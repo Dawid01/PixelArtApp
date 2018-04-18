@@ -10,11 +10,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
-public class Main{
+public class Main implements MouseWheelListener {
 
     static JLabel tools;
     static JLabel colorsLayout;
@@ -31,10 +29,21 @@ public class Main{
 
     static Singleton singleton;
 
+    static CanvasContainer canvasContainer;
+
+    //buttons
+    static ImagePanel drawButton;
+    static ImagePanel fillingButton;
+    static ImagePanel rubberButton;
+    static ImagePanel gridButton;
+
+
+    static int scale;
+
     public static void main(String[] args) {
 
         window = new JFrame("PixelArtApp");
-        window.setPreferredSize(new Dimension(1700, 800));
+        window.setPreferredSize(new Dimension(1799, 800));
         window.pack();
         window.setVisible(true);
         CreateUI(window);
@@ -48,7 +57,9 @@ public class Main{
                 activedButton.setBounds(20,tools.getHeight() - 140,60,60);
                 colorsLayout.setBounds(window.getWidth()- 300,9,300,window.getHeight());
                 colorLine.setSize(window.getWidth(), 9);
+               // canvasContainer.setBounds(window.getWidth()/2 - canvasContainer.getWidth()/2, window.getHeight()/2 - canvasContainer.getHeight()/2, canvasContainer.getWidth(), canvasContainer.getHeight());
                 canvas.setBounds(window.getWidth()/2 - canvas.getWidth()/2, window.getHeight()/2 - canvas.getHeight()/2, canvas.getHeight(), canvas.getWidth());
+                canvas.invalidate();
 
             }
 
@@ -78,10 +89,12 @@ public class Main{
         backgroundLabel.setBackground(new Color(79, 91, 98));
         window.add(backgroundLabel);
 
-
-        canvas =  new Canvas(window.getWidth()/2 - 400, window.getHeight()/2 - 400, 500, 500, true,50);
-        backgroundLabel.add(canvas);
+        canvasContainer = new CanvasContainer(window.getWidth()/2 - 250, window.getHeight()/2 - 250,500,500,5);
+        //backgroundLabel.add(canvasContainer);
+        canvas =  new Canvas(0,0, 500, 500, true,50);
+        //canvasContainer.add(canvas);
         canvas.setBackground(Color.WHITE);
+        backgroundLabel.add(canvas);
 
         tools = new JLabel();
         tools.setOpaque(true);
@@ -107,6 +120,8 @@ public class Main{
 
         CreateColorsLayout(colorsLayout);
         CreateTools(tools,window);
+        canvas.setBounds(window.getWidth()/2 - canvas.getWidth()/2, window.getHeight()/2 - canvas.getHeight()/2, canvas.getHeight(), canvas.getWidth());
+
 
     }
 
@@ -115,48 +130,40 @@ public class Main{
     static void CreateTools(JLabel tools, JFrame window){
 
 
-        ImagePanel drawButton =  new ImagePanel(20,20,60,60,new Color(0, 10, 18));
+        drawButton =  new ImagePanel(20,20,60,60,new Color(0, 10, 18));
         JLabel drawLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/drawikon.png")));
         drawButton.add(drawLabel);
         tools.add(drawButton);
 
-        ImagePanel fillingButton =  new ImagePanel(20,120,60,60,new Color(0, 10, 18,0));
+        fillingButton =  new ImagePanel(20,120,60,60,new Color(0, 10, 18,0));
         JLabel fillingLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/fillingikon.png")));
         fillingButton.add(fillingLabel);
         tools.add(fillingButton);
 
-        ImagePanel rubberButton =  new ImagePanel(20,220,60,60,new Color(0, 10, 18,0));
+        rubberButton =  new ImagePanel(20,220,60,60,new Color(0, 10, 18,0));
         JLabel RubberLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/rubberikon.png")));
         rubberButton.add(RubberLabel);
         tools.add(rubberButton);
 
-        ImagePanel gridButton =  new ImagePanel(20,320,60,60,new Color(0, 10, 18,0));
+        gridButton =  new ImagePanel(20,320,60,60,new Color(0, 10, 18,0));
         JLabel gridLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/gridikon.png")));
         gridButton.add(gridLabel);
         tools.add(gridButton);
 
-        gridButton.addMouseListener(new MouseInputAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                canvas.isGrid = !canvas.isGrid;
-                canvas.revalidate();
-                canvas.repaint();
+        ButtonsListners();
 
-                if(canvas.isGrid){
-                    canvas.setBackground(Color.WHITE);
-                }else {
-                    canvas.setBackground(Color.black);
-                }
-                super.mouseClicked(e);
-            }
-        });
 
         activedButton =  new ImagePanel(20,tools.getHeight() - 140,60,60,new Color(0, 10, 18,0));
         JLabel activedLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/drawikon.png")));
         activedButton.add(activedLabel);
         tools.add(activedButton);
-        window.setSize(1800,800);
-        
+       window.setSize(1800,800);
+       window.invalidate();
+       window.validate();
+       window.repaint();
+       SwingUtilities.updateComponentTreeUI(window);
+
+
     }
 
     static void CreateColorsLayout(JLabel colorsLayout){
@@ -188,5 +195,62 @@ public class Main{
 
     }
 
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int notches = e.getWheelRotation();
+        if (notches < 0) {
+
+            scale += notches;
+        } else {
+
+            scale -=notches;
+        }
+        scale = notches;
+        //canvas.setSize((int)(canvas.getWidth() * scale), (int)(canvas.getHeight() * scale));
+        canvas.setBounds(window.getWidth()/2 * scale - canvas.getWidth()/2 * scale, window.getHeight()/2 * scale - canvas.getHeight()/2 * scale, canvas.getHeight() * scale, canvas.getWidth() * scale);
+
+    }
+
+   static void ButtonsListners(){
+
+        gridButton.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                canvas.isGrid = !canvas.isGrid;
+                canvas.revalidate();
+                canvas.repaint();
+
+                if(canvas.isGrid){
+                    canvas.setBackground(Color.WHITE);
+                }else {
+                    canvas.setBackground(Color.black);
+                }
+                super.mouseClicked(e);
+            }
+        });
+
+       drawButton.addMouseListener(new MouseInputAdapter() {
+           @Override
+           public void mouseClicked(MouseEvent e) {
+
+               canvas.setPaintMode(1);
+               JLabel activedLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/drawikon.png")));
+               activedLabel.remove(0);
+               activedButton.add(activedLabel);
+           }
+       });
+
+       rubberButton.addMouseListener(new MouseInputAdapter() {
+           @Override
+           public void mouseClicked(MouseEvent e) {
+
+               canvas.setPaintMode(0);
+               JLabel activedLabel =  new JLabel(new ImageIcon(Main.class.getResource("/images/rubberikon.png")));
+               activedLabel.remove(0);
+               activedButton.add(activedLabel);
+           }
+       });
+
+    }
 
 }

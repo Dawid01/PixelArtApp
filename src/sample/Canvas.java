@@ -16,9 +16,11 @@ public class Canvas extends JPanel implements MouseListener{
     private int resolution;
     boolean isGrid;
     boolean isRubber;
-
+    static  boolean canDraw = false;
 
     static float pixelSize;
+
+    static private int paintMode = 1;
 
     static ArrayList<PixelPoint> point = new ArrayList<PixelPoint>();
 
@@ -113,24 +115,16 @@ public class Canvas extends JPanel implements MouseListener{
 
 
             Graphics pixel =  g;
-            if(!isRubber) {
-                pixel.setColor(p.getColor());
-                pixel.fillRect((int) posX - (int) (pixelSize / 2), (int) posY - (int) (pixelSize / 2), (int) pixelSize, (int) pixelSize);
-                //pixel.fillRect((int)((p.x/pixelSize) * pixelSize),(int)((p.y/pixelSize) * pixelSize),(int) pixelSize, (int) pixelSize);
-            }else {
 
-                pixel.setColor(p.getColor());
-                pixel.setPaintMode();
-                pixel.fillRect((int) posX - (int) (pixelSize / 2), (int) posY - (int) (pixelSize / 2), (int) pixelSize, (int) pixelSize);
-            }
+            pixel.setColor(p.getColor());
+            pixel.fillRect((int) posX - (int) (pixelSize / 2), (int) posY - (int) (pixelSize / 2), (int) pixelSize, (int) pixelSize);
+            //pixel.fillRect((int)((p.x/pixelSize) * pixelSize),(int)((p.y/pixelSize) * pixelSize),(int) pixelSize, (int) pixelSize);
 
             if(isGrid) {
+                g.setColor(Color.DARK_GRAY);
                 for (int i = 0; i < height / pixelSize; i++) {
-
-                    g.setColor(Color.DARK_GRAY);
                     g.drawLine(0, i * (int) pixelSize, height, i * (int) pixelSize);
                     g.drawLine(i * (int) pixelSize, 0, i * (int) pixelSize, height);
-
                 }
 
             }
@@ -149,9 +143,7 @@ public class Canvas extends JPanel implements MouseListener{
         @Override
         public void mouseDragged(MouseEvent e) {
 
-            point.add(new PixelPoint(new Point(e.getX(),e.getY()),singleton.getInstance().getPaintColor()));
-            jPanel.revalidate();
-            jPanel.repaint();
+            drawNePixel(e);
         }
 
         @Override
@@ -163,6 +155,27 @@ public class Canvas extends JPanel implements MouseListener{
     };
 
 
+    static void drawNePixel(MouseEvent e){
+
+        if(canDraw) {
+            switch (paintMode){
+
+                case 0:
+//                        point.add(new PixelPoint(new Point(e.getX(), e.getY()), singleton.getInstance().getPaintColor()));
+//                        jPanel.revalidate();
+//                        jPanel.repaint();
+                    break;
+                case 1:
+                    point.add(new PixelPoint(new Point(e.getX(), e.getY()), singleton.getInstance().getPaintColor()));
+                    jPanel.revalidate();
+                    jPanel.repaint();
+                    break;
+
+            }
+
+        }
+    }
+
     Float deltaPoints(float p1x, float p2x, float p1y, float p2y){
 
         double delta=  Math.sqrt((p1x -p2x)*(p1x-p2x) + (p1y-p2y)*(p1y-p2y));
@@ -171,30 +184,37 @@ public class Canvas extends JPanel implements MouseListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        point.add(new PixelPoint(new Point(e.getX(),e.getY()),singleton.getInstance().getPaintColor()));
-        revalidate();
-        repaint();
+//        if(e.getButton () == MouseEvent.BUTTON1) {
+//            point.add(new PixelPoint(new Point(e.getX(), e.getY()), singleton.getInstance().getPaintColor()));
+//            revalidate();
+//            repaint();
+//        }
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        //setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        point.add(new PixelPoint(new Point(e.getX(),e.getY()),singleton.getInstance().getPaintColor()));
-        revalidate();
-        repaint();
+        if(e.getButton () == MouseEvent.BUTTON1) {
+            drawNePixel(e);
+            canDraw = true;
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        canDraw = false;
     }
 
 
@@ -214,4 +234,11 @@ public class Canvas extends JPanel implements MouseListener{
         isGrid = grid;
     }
 
+    public int getPaintMode() {
+        return paintMode;
+    }
+
+    public void setPaintMode(int paintMode) {
+        this.paintMode = paintMode;
+    }
 }

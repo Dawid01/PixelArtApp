@@ -140,12 +140,12 @@ public class ColorPicker extends JPanel implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
+        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     @Override
